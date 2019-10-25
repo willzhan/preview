@@ -1,2 +1,2 @@
 # preview
-In progress
+Video preview or scrubbing without backend workflow
