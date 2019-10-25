@@ -1,0 +1,158 @@
+﻿<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Preview: A plugin for Azure Media Player</title>
+    <meta name="description" content="Preview: A plugin for Azure Media Player">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--*****START OF Azure Media Player scripts*****-->
+    <link href="//amp.azure.net/libs/amp/latest/skins/amp-default/azuremediaplayer.min.css" rel="stylesheet">
+    <script src="//amp.azure.net/libs/amp/latest/azuremediaplayer.min.js"></script>
+    <!--*****END OF Azure Media Player scripts*****-->
+    <!--*****START OF AMP plugin scripts*****-->
+    <script src="js/amp.preview.js"></script>
+    <!--*****END OF AMP plugin scripts*****-->
+    <style type="text/css" media="screen">
+        body {
+            margin: 4px;
+            padding: 4px;
+            overflow: auto;
+            text-align: left;
+            background-color: white;
+            font-family: Arial;
+            font-size: small;
+            color: black;
+        }
+
+        table, th, td {
+            padding-right: 35px;
+        }
+    </style>
+</head>
+
+<body>
+    <h3>Video Preview</h3>
+    <p>
+        <input id="sourceUrl" name="sourceUrl" style="width: 992px;" type="text" value="https://willzhanmswest.streaming.mediaservices.windows.net/1e586946-32f0-4af7-891e-93f12bc2898a/Microsoft_HoloLens_TransformYourWorld_816p23.ism/Manifest" />
+        <table>
+            <tr>
+                <td>Preview type:</td>
+                <td>
+                    <select id="previewType" style="width: 70px;">
+                        <option selected value="0">image</option>
+                        <option value="1">video</option>
+                    </select>
+                </td>
+                <td>image: keyframe; video: video segment</td>
+                <td></td>
+            </tr>
+            <tr><td>Preview width:</td><td><input id="previewWidth" name="previewWidth" style="width: 35px;" type="text" value="200" />(px)</td><td>control the size of thumbnail</td><td></td></tr>
+            <tr><td>Preview quality:</td><td><input id="previewQuality" name="previewQuality" style="width: 35px;" type="text" value="0" /></td><td>0: lowest bitrate layer</td><td></td></tr>
+            <tr>
+                <td>Test mode:</td>
+                <td>
+                    <select id="testMode" style="width: 70px;">
+                        <option selected value="0">false</option>
+                        <option value="1">true</option>
+                    </select>
+                </td>
+                <td>whether to print out debug info</td>
+                <td><input type="button" id="cmdPlay" value="OK" style="width: 45px;" onclick="play();" /></td>
+            </tr>
+        </table>
+    </p>
+    <div id="divVideo"></div>
+
+    <script>
+        var amPlayer;
+
+        function play() {
+
+            var VIDEO_ID = "video_tag";
+            var divVideo = document.getElementById("divVideo");
+
+            //clean up both existing, if any, video tag and its corresponding AMP player
+            var videoElement = document.getElementById(VIDEO_ID);
+            if (videoElement !== null) {
+                divVideo.removeChild(videoElement);
+
+                //so that plugins are updated
+                if (!!amPlayer) {
+                    amPlayer.dispose();
+                }
+            }
+
+            //create new video tag with same video ID
+            videoElement = document.createElement("VIDEO");
+            videoElement.setAttribute("id", VIDEO_ID);
+            videoElement.setAttribute("controls", "controls");
+            videoElement.setAttribute("class", "azuremediaplayer amp-default-skin");
+            videoElement.setAttribute("tabindex", "0");
+            divVideo.appendChild(videoElement);
+
+            var src = document.getElementById("sourceUrl");
+            var url = src.value;
+            amPlayer = amp(VIDEO_ID, {
+                "nativeControlsForTouch": false,
+                autoplay: true,
+                controls: true,
+                width: 992,
+                height: 560,
+                plugins: getPlugins(),
+                logo: {enabled: false}
+            });
+
+            amPlayer.src([{
+                src: url,
+                type: "application/vnd.ms-sstr+xml"
+            }]);
+        }
+
+        function getPlugins() {
+            //get user inputs for plugin input parameters
+            var previewTypeElement = document.getElementById("previewType");
+            var value = previewTypeElement.options[previewTypeElement.selectedIndex].value;
+            var previewTypeValue = parseInt(value, 10);
+
+            var previewWidthElement = document.getElementById("previewWidth");
+            var previewWidth = parseInt(previewWidthElement.value);
+            if (isNaN(previewWidth)) {
+                previewWidth = "200";
+            }
+
+            var previewQualityElement = document.getElementById("previewQuality");
+            var previewQuality = parseInt(previewQualityElement.value);
+            if (isNaN(previewQuality)) {
+                previewQuality = "0";
+            }
+
+            var testModeElement = document.getElementById("testMode");
+            value = testModeElement.options[testModeElement.selectedIndex].value;
+            var testModeValue = parseInt(value, 10);
+
+            //create plugin
+            var plugins = {
+                preview: {
+                    previewType: previewTypeValue === 1 ? "video" : "image",
+                    previewWidth: previewWidth,
+                    previewQuality: previewQuality,
+                    testMode: testModeValue === 1,
+                }
+            };
+
+            return plugins;
+        }
+
+        play();
+    </script>
+
+    <footer>
+        <br />
+        <p>&copy; Prototype</p>
+    </footer>
+</body>
+
+</html>
