@@ -1,0 +1,21 @@
+{
+  "name": "new-scrubbing",
+  "version": "1.0.0",
+  "description": "Video preview or scrubbing without backend workflow",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "find ./src -maxdepth 1 -iname '*.js' -not -name 'ampPlayer.js' -exec cat {} +> src/static/js/bundle.js && cp src/ampPlayer.js src/static/js/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/willzhan/preview.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/willzhan/preview/issues"
+  },
+  "homepage": "https://github.com/willzhan/preview#readme",
+  "devDependencies": {}
+}
