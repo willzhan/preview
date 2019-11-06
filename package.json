@@ -3,19 +3,16 @@
   "version": "1.0.0",
   "description": "Video preview or scrubbing without backend workflow",
   "main": "index.js",
-  "directories": {
-    "lib": "lib"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify -p tinyify src/*.js > src/static/js/bundle.js"
+    "build": "find ./src -maxdepth 1 -iname '*.js' -not -name 'ampPlayer.js' -exec cat {} +> src/static/js/bundle.js && cp src/ampPlayer.js src/static/js/"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/willzhan/preview.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/willzhan/preview/issues"
   },
