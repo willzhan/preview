@@ -7,8 +7,6 @@ on:
 
 jobs:
   build-and-deploy:
-
-    name: Hello-World
     
     runs-on: ubuntu-latest
 
