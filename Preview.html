@@ -14,6 +14,7 @@
     <!--*****END OF Azure Media Player scripts*****-->
     <!--*****START OF AMP plugin scripts*****-->
     <script src="js/amp.preview.js"></script>
+    <script src="js/ampPlayer.js"></script>
     <script src="js/browserutils.js"></script>
     <script src="js/globals.js"></script>
     <script src="js/mpdutils.js"></script>
@@ -71,86 +72,8 @@
     <div id="divVideo"></div>
 
     <script>
-        var amPlayer;
-
-        function play() {
-
-            var VIDEO_ID = "video_tag";
-            var divVideo = document.getElementById("divVideo");
-
-            //clean up both existing, if any, video tag and its corresponding AMP player
-            var videoElement = document.getElementById(VIDEO_ID);
-            if (videoElement !== null) {
-                divVideo.removeChild(videoElement);
-
-                //so that plugins are updated
-                if (!!amPlayer) {
-                    amPlayer.dispose();
-                }
-            }
-
-            //create new video tag with same video ID
-            videoElement = document.createElement("VIDEO");
-            videoElement.setAttribute("id", VIDEO_ID);
-            videoElement.setAttribute("controls", "controls");
-            videoElement.setAttribute("class", "azuremediaplayer amp-default-skin");
-            videoElement.setAttribute("tabindex", "0");
-            divVideo.appendChild(videoElement);
-
-            var src = document.getElementById("sourceUrl");
-            var url = src.value;
-            amPlayer = amp(VIDEO_ID, {
-                "nativeControlsForTouch": false,
-                autoplay: true,
-                controls: true,
-                width: 992,
-                height: 560,
-                plugins: getPlugins(),
-                logo: {enabled: false}
-            });
-
-            amPlayer.src([{
-                src: url,
-                type: "application/vnd.ms-sstr+xml"
-            }]);
-        }
-
-        function getPlugins() {
-            //get user inputs for plugin input parameters
-            var previewTypeElement = document.getElementById("previewType");
-            var value = previewTypeElement.options[previewTypeElement.selectedIndex].value;
-            var previewTypeValue = parseInt(value, 10);
-
-            var previewWidthElement = document.getElementById("previewWidth");
-            var previewWidth = parseInt(previewWidthElement.value);
-            if (isNaN(previewWidth)) {
-                previewWidth = "200";
-            }
-
-            var previewQualityElement = document.getElementById("previewQuality");
-            var previewQuality = parseInt(previewQualityElement.value);
-            if (isNaN(previewQuality)) {
-                previewQuality = "0";
-            }
-
-            var testModeElement = document.getElementById("testMode");
-            value = testModeElement.options[testModeElement.selectedIndex].value;
-            var testModeValue = parseInt(value, 10);
-
-            //create plugin
-            var plugins = {
-                preview: {
-                    previewType: previewTypeValue === 1 ? "video" : "image",
-                    previewWidth: previewWidth,
-                    previewQuality: previewQuality,
-                    testMode: testModeValue === 1,
-                }
-            };
-
-            return plugins;
-        }
-
-        play();
+        var ampPlayer = new AmpPlayer();
+        ampPlayer.play();
     </script>
 
     <footer>
