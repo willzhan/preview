@@ -53,10 +53,6 @@ SOFTWARE.                       */
         var hover;                             //<div> element containing videoElement and other UI elements
         var videoElement;                      //<video> element for displaying preview segment: either keyframe or video segment
         var status;                            //for testing only, when test_mode=true
-        
-        //image preview
-        //var thumbnailObject;                 //new Image();
-        //var thumbnailImage;                  //image element
 
 
         //******************** ELEMENTS & POSITIONS  ************************//
@@ -106,12 +102,6 @@ SOFTWARE.                       */
         videoElement.style.width = previewWidth + "px";
         hover.appendChild(videoElement);
 
-        //create an image element
-        //thumbnailImage = document.createElement("img");
-        //thumbnailImage.id = "thumbnailImage";
-        //thumbnailImage.style.width = "200px";
-        //hover.appendChild(thumbnailImage);
-
         //status display (test mode)
         if (test_mode === true) {
             status = document.createElement("div");
@@ -119,7 +109,6 @@ SOFTWARE.                       */
             hover.appendChild(status);
         }
 
-        //player.controlBar.el().appendChild(hover);
         player.controlBar.progressControl.seekBar.el().appendChild(hover);
 
 
@@ -128,7 +117,6 @@ SOFTWARE.                       */
 
         //determine which segment mouseTime falls within (and subsequent segments for viewo preview), for the purpose of determining $Time$
         function getSelectedSegments(mouseTime) {
-            //var start = performance.now();
             var selectedSegments = [];
             if (!!segments && segments.length > 0) {
                 for (var i = 0; i < segments.length; i++) {
@@ -417,7 +405,6 @@ SOFTWARE.                       */
                 segments = getSegments(segmentTimeline);
 
                 //get the specified $Bandwidth$ (both $Bandwidth$ and initialization are required to build the URL for requesting video initialization
-                //bandwidth = getLowestBitrate(player);
                 bandwidth = getSelectedBitrate(player, previewQuality);
                 console.log("Selected bitrate/bandwidth: " + bandwidth);
 
@@ -442,60 +429,6 @@ SOFTWARE.                       */
 
             };
             dashManifestRequest.send();
-
-
-            //BrowserUtils.xhrRequest(url, "GET", "", "", "useResponseXML", function (xml) {
-            //    if (!!xml) {
-            //        //get initialization, media, timescale paramters
-            //        var segmentTemplates = xml.getElementsByTagName("SegmentTemplate");
-            //        if (!!segmentTemplates && segmentTemplates.length > 0) {
-            //            for (var j = 0; j < segmentTemplates.length; j++) {
-            //                initialization = segmentTemplates[j].getAttribute("initialization");
-            //                if (initialization == "QualityLevels($Bandwidth$)/Fragments(video=i,format=mpd-time-csf)") {
-            //                    media = segmentTemplates[j].getAttribute("media");
-            //                    timescale = segmentTemplates[j].getAttribute("timescale");
-            //                    break;
-            //                }
-            //            }
-            //        }
-
-            //        //get d for video representations. This is not the best way. We should use DashParser
-            //        var segmentTimelines = xml.getElementsByTagName("SegmentTimeline");
-            //        if (!!segmentTimelines && segmentTimelines.length > 0) {
-            //            for (var i = 0; i < segmentTimelines.length; i++) {
-            //                if (segmentTimelines[i].parentNode.getAttribute("initialization") == "QualityLevels($Bandwidth$)/Fragments(video=i,format=mpd-time-csf)") {
-            //                    d = segmentTimelines[i].firstChild.getAttribute("d");
-            //                    //more detailed processing required here. What if it includes non-repeating segments
-            //                    break;
-            //                }
-            //            }
-            //        }
-
-
-            //        //get $Bandwidth$ - the lowest bitrate (both $Bandwidth$ and initialization are required to build the URL for requesting video initialization
-            //        bandwidth = getLowestBitrate();
-
-            //        //get segmentBaseUrl
-            //        segmentBaseUrl = getSmoothUrl().replace("Manifest", "").replace("manifest", "");
-
-            //        //get URL for video initialization
-            //        if (!!initialization && !!bandwidth) {
-            //            var initializationSegmentUrl = segmentBaseUrl + initialization.replace("$Bandwidth$", bandwidth);
-            //            console.log(initializationSegmentUrl);
-
-            //            //request initializationSegment
-            //            BrowserUtils.xhrRequest(initializationSegmentUrl, "GET", "arraybuffer", "", "", function (data) {
-            //                if (!!data) {
-            //                    initializationSegment = data;
-            //                    console.log(initializationSegment);
-            //                }
-            //            });
-            //        }
-
-
-            //}  //if (!!xml)
-            //}
-
         }  //getMPD
 
         //get the completeMimeType ('video/mp4; codecs="avc1.4D4020"') which is required by all Chromium-based browsers.
@@ -592,13 +525,11 @@ SOFTWARE.                       */
 
             // Create MSE object (the following 2 variables were moved into function scope from global)
             var vidSourceBuffer; 
-            //var mediaSource = null;  
             var mediaSource = new MediaSource();
 
             // Register sourceopen event handler in order to add source buffers to MSE after it has been attached to the video element.
             mediaSource.addEventListener("sourceopen", function () {
                 // Register timeupdate event handler to monitor buffer level
-                //videoElement.addEventListener("timeupdate", saveThumbnail, false);
                 videoElement.addEventListener("ended", saveThumbnail, false);
                 if (mediaSource.sourceBuffers.length === 0) {
                     // Add video source buffers 
@@ -609,12 +540,6 @@ SOFTWARE.                       */
                     updateSourceBuffers(mediaSource, vidSourceBuffer, index);
                 }
             }, false);
-
-            //mediaSource.addEventListener("sourceclose", function () {
-            //    videoElement.removeEventListener("timeupdate", updateSourceBuffers, false);
-            //}, false);
-
-            //setSourceTime = performance.now();
 
             // Attach the MSE object to the video element
             videoElement.src = URL.createObjectURL(mediaSource, { oneTimeOnly: true });
@@ -663,17 +588,6 @@ SOFTWARE.                       */
 
         // function called periodically to update the source buffers by appending more segments
         function updateSourceBuffers(mediaSource, vidSourceBuffer, index) {
-
-            //appendInitSegment(vidSourceBuffer);
-            //appendNextMediaSegment(vidSourceBuffer, index);   //moved below
-
-
-            // Call mediaSource.endOfStream() once all segments have been appended
-            //if (vidSourceBuffer && vidSourceBuffer.eos && mediaSource.readyState !== "ended") {
-            //    mediaSource.endOfStream();
-            //    getBufferLevel(vidSourceBuffer);
-            //}
-
             //to avoid the error: Uncaught DOMException: Failed to execute 'endOfStream' on 'MediaSource': The 'updating' attribute is true on one or more of this MediaSource's SourceBuffers.
             //https://developer.mozilla.org/en-US/docs/Web/API/MediaSource/endOfStream
             if (!!vidSourceBuffer) {
@@ -697,21 +611,6 @@ SOFTWARE.                       */
 
             // Download and append segment
             sourceBuffer.appendingData = true;
-
-
-            /*
-              downloadSegment(0, 0, url, function(data) {
-                if (data) {
-                  sourceBuffer.appendBuffer(data);
-                  sourceBuffer.needsInitSegment = false;
-                  sourceBuffer.lastInitSegmentUrl = url;
-                  //sourceBuffer.eos = true;
-                } else {
-                  sourceBuffer.appendingData = false;
-                }
-              });
-              */
-
             sourceBuffer.appendBuffer(initializationSegment);
             sourceBuffer.needsInitSegment = false;
             sourceBuffer.lastInitSegmentUrl = initializationSegmentUrl;
@@ -730,25 +629,7 @@ SOFTWARE.                       */
                 return;
             }
 
-            sourceBuffer.appendingData = true;
-
-            /*
-            downloadSegment(0, 0, keyFrameUrl, function(data) {
-              if (data) {
-                if (!timerStarted) {
-                  firstAppendTime = performance.now();
-                  timerStarted = true;
-                  timingTTFF = true;
-                }
-                //sourceBuffer.timestampOffset = -390;
-                sourceBuffer.appendBuffer(data);
-                sourceBuffer.eos = true;
-              } else {
-                sourceBuffer.appendingData = false;
-              }
-            });
-            */
-            
+            sourceBuffer.appendingData = true;        
             sourceBuffer.appendBuffer(kfvSegments[0]);
             sourceBuffer.eos = true;
         }
@@ -778,9 +659,6 @@ SOFTWARE.                       */
         function saveThumbnail() {
             //playbackEnd = performance.now();
             //document.getElementById("result").events_textarea.value += "PlaybackTime:" + (playbackEnd - playbackStart) + "\n";
-
-
-
             //convert to image via canvas and put into image element
             //var tmpCanvas = document.createElement("canvas");
             //tmpCanvas.width = 200;
@@ -792,13 +670,6 @@ SOFTWARE.                       */
             //thumbnailObject.src = tmpCanvas.toDataURL();
             //thumbnailImage.src = thumbnailObject.src;
             //thumbnailImage.style.visibility = "visible";
-
-
-
-
-
-
-
             //canvasDownloaded[currentIndex] = true;
             //document.getElementById("result").events_textarea.value += "save canvas: " + currentIndex + " frame time: " + frameStart + "\n";
             /* display each frame thumbnail
@@ -816,8 +687,5 @@ SOFTWARE.                       */
             //    checkAndDownloadThumbnails();
             //}
         }
-
-        //***************************************
-
     });
 })();
