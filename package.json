@@ -7,7 +7,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify -p tinyify src/*.js > src/static/js/bundle.js"
   },
   "repository": {
     "type": "git",
@@ -18,5 +19,9 @@
   "bugs": {
     "url": "https://github.com/willzhan/preview/issues"
   },
-  "homepage": "https://github.com/willzhan/preview#readme"
+  "homepage": "https://github.com/willzhan/preview#readme",
+  "devDependencies": {
+    "browserify": "^16.5.0",
+    "tinyify": "^2.5.2"
+  }
 }
