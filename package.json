@@ -18,7 +18,5 @@
   },
   "homepage": "https://github.com/willzhan/preview#readme",
   "devDependencies": {
-    "browserify": "^16.5.0",
-    "tinyify": "^2.5.2"
   }
 }
