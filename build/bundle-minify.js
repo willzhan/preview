@@ -1,7 +1,7 @@
 let uglify = require('uglify-js');
 let fs = require('fs');
 
-let dir = 'src/';
+let dir = process.cwd().replace('/build', '') + '/src/';
 let outdir = dir + 'static/js/';
 let bundlefile = outdir + 'bundle.min.js';
 let omit = ['ampPlayer.js'];
