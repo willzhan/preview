@@ -32,13 +32,13 @@ function setupPreview(index) {
     if (previewType === "video") {
         var playPromise = videoElement.play();
         if (playPromise !== undefined) {
-            playPromise.then(_ => {
+            playPromise.then(function(_) {
                 // Automatic playback started!
                 // Show playing UI.
                 // We can now safely pause video...
                 //video.pause();
             })
-                .catch(error => {
+                .catch(function(error) {
                     // Auto-play was prevented
                     console.log("Promise for video.play() is rejected.");
                 });
