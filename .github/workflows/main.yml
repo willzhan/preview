@@ -43,5 +43,3 @@ jobs:
           AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST1_AZSUBID }}
           AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.TEST1_AZSTORAGE }}
           AZURE_INDEX_DOCUMENT_NAME: "Preview.html"
-          #AZURE_ERROR_DOCUMENT_NAME: "<error-document-name>"    
-      
