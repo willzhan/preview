@@ -62,7 +62,7 @@ AmpPlayer.prototype.play = function () {
     }]);
 
     // Prefetch thumbnails on click
-    amPlayer.addEventListener("click", () => {
+    amPlayer.addEventListener("click", function() {
         if (!prefetched) {
             prefetched = true;
             prefetchThumbnails(segmentBaseUrl, bandwidth, segments, initializationSegment,

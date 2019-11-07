@@ -18,7 +18,7 @@ function downloadSegment(baseUrl, bandwidth, time, type) {
         url = url.replace("/Fragments(", "/Keyframes(");
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise(function(resolve, reject) {
         BrowserUtils.xhrRequest(url, "GET", "arraybuffer", "", "", function (data) {
             if (!!data) {
                 resolve(data);
@@ -31,7 +31,7 @@ function downloadSegment(baseUrl, bandwidth, time, type) {
 
 // Convert video segment to base64 PNG image
 function segmentToImage(initializationSegment, initializationSegmentUrl, completeMimeType, segmentData) {
-    return new Promise((resolve, reject) => {
+    return new Promise(function(resolve, reject) {
         // Lazy initialization
         if (!canvas) {
             // Init canvas
@@ -63,10 +63,10 @@ function segmentToImage(initializationSegment, initializationSegmentUrl, complet
 
         // Attach the MSE object to the video element
         offscreenVideoElement.src = URL.createObjectURL(mediaSource, { oneTimeOnly: true });
-        offscreenVideoElement.play().then(_ => {
+        offscreenVideoElement.play().then(function(_) {
             canvasContext.drawImage(offscreenVideoElement, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
             resolve(canvas.toDataURL());
-        }).catch(error => {
+        }).catch(function(error) {
             reject(error);
         });
     });
@@ -78,9 +78,9 @@ function prefetchThumbnails(baseUrl, bandwidth, segments, initializationSegment,
     console.log("Number of segments: " + segments.length);
     for (var i = 0; i < segments.length; i++) {
         const time = segments[i].start;
-        setTimeout(() => {
-            downloadSegment(baseUrl, bandwidth, time, "image").then(data => {
-                segmentToImage(initializationSegment, initializationSegmentUrl, completeMimeType, data).then(imageData => {
+        setTimeout(function() {
+            downloadSegment(baseUrl, bandwidth, time, "image").then(function(data) {
+                segmentToImage(initializationSegment, initializationSegmentUrl, completeMimeType, data).then(function(imageData) {
                     const segmentVirtualUrl = media.replace("$Bandwidth$", bandwidth).replace("$Time$", time);
                     let url = segmentBaseUrl + segmentVirtualUrl;
                     url = url.replace("/Fragments(", "/Keyframes(");
