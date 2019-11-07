@@ -26,7 +26,7 @@ function AmpPlayer() {
 
 }
 
-AmpPlayer.prototype.play = function() {
+AmpPlayer.prototype.play = function () {
     var VIDEO_ID = "video_tag";
     var divVideo = document.getElementById("divVideo");
     //clean up both existing, if any, video tag and its corresponding AMP player
@@ -60,9 +60,22 @@ AmpPlayer.prototype.play = function() {
         src: url,
         type: "application/vnd.ms-sstr+xml"
     }]);
+
+    // videoElement.addEventListener("playing", () => {
+    //     console.log("videoElement.addEventListener");
+    //     // Prefetch thumbnails
+    //     prefetchThumbnails(segmentBaseUrl, bandwidth, segments, initializationSegment,
+    //         initializationSegmentUrl, completeMimeType, memoryCache);
+    // });
+
+    setTimeout(() => {
+        // Prefetch thumbnails
+        prefetchThumbnails(segmentBaseUrl, bandwidth, segments, initializationSegment,
+            initializationSegmentUrl, completeMimeType, memoryCache);
+    }, 3000);
 }
 
-AmpPlayer.prototype.getPlugins = function() {
+AmpPlayer.prototype.getPlugins = function () {
     //get user inputs for plugin input parameters
     var previewTypeElement = document.getElementById("previewType");
     var value = previewTypeElement.options[previewTypeElement.selectedIndex].value;

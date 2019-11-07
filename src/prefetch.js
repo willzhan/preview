@@ -8,7 +8,7 @@ const CANVAS_HEIGHT = 90;                               // canvas height
 
 let canvas;                                             // canvas used for offscreen rendering
 let canvasContext;                                      // canvas context
-let offscreenVideoElement;                                       // used to decode video segment
+let offscreenVideoElement;                              // used to decode video segment
 
 // Download video segment at the given time
 function downloadSegment(baseUrl, bandwidth, time, type) {
@@ -57,7 +57,7 @@ function segmentToImage(initializationSegment, initializationSegmentUrl, complet
 
                 // add segments
                 appendInitSegment(sourceBuffer, initializationSegment, initializationSegmentUrl);
-                updateSourceBuffers(mediaSource, sourceBuffer, 0, offscreenVideoElement);
+                updateSourceBuffers(mediaSource, sourceBuffer, segmentData, offscreenVideoElement);
             }
         }, false);
 
@@ -70,4 +70,23 @@ function segmentToImage(initializationSegment, initializationSegmentUrl, complet
             reject(error);
         });
     });
+}
+
+function prefetchThumbnails(baseUrl, bandwidth, segments, initializationSegment, initializationSegmentUrl, completeMimeType, memoryCache) {
+    console.log("prefetchThumbnails");
+
+    for (var i = 0; i < segments.length; i++) {
+        const time = segments[i].start;
+        setTimeout(() => {
+            downloadSegment(baseUrl, bandwidth, time, "image").then(data => {
+                segmentToImage(initializationSegment, initializationSegmentUrl, completeMimeType, data).then(imageData => {
+                    const segmentVirtualUrl = media.replace("$Bandwidth$", bandwidth).replace("$Time$", time);
+                    let url = segmentBaseUrl + segmentVirtualUrl;
+                    url = url.replace("/Fragments(", "/Keyframes(");
+                    console.log(imageData);
+                    memoryCache[url] = imageData;
+                });
+            });
+        }, i * 500);
+    }
 }

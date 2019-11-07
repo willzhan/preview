@@ -23,7 +23,7 @@ function setupPreview(index) {
 
             // add segments
             appendInitSegment(vidSourceBuffer, initializationSegment, initializationSegmentUrl);  //moved here from line 648
-            updateSourceBuffers(mediaSource, vidSourceBuffer, index, videoElement);
+            updateSourceBuffers(mediaSource, vidSourceBuffer, kfvSegments[0], videoElement);
         }
     }, false);
 
@@ -66,19 +66,21 @@ function createSourceBuffer(mediaSource, mimeType, index, videoElement) {
     // Register updateend event handler to know when the append or remove operation has completed
     sourceBuffer.addEventListener("updateend", function () {
         sourceBuffer.appendingData = false;
-        updateSourceBuffers(mediaSource, sourceBuffer, index, videoElement);
+        if (kfvSegments) {
+            updateSourceBuffers(mediaSource, sourceBuffer, kfvSegments[0], videoElement);
+        }
     });
 
     return sourceBuffer;
 }
 
 // function called periodically to update the source buffers by appending more segments
-function updateSourceBuffers(mediaSource, vidSourceBuffer, index, videoElement) {
+function updateSourceBuffers(mediaSource, vidSourceBuffer, nextSegment, videoElement) {
     //to avoid the error: Uncaught DOMException: Failed to execute 'endOfStream' on 'MediaSource': The 'updating' attribute is true on one or more of this MediaSource's SourceBuffers.
     //https://developer.mozilla.org/en-US/docs/Web/API/MediaSource/endOfStream
     if (!!vidSourceBuffer) {
         vidSourceBuffer.addEventListener("updateend", function () {
-            appendNextMediaSegment(vidSourceBuffer, index);   //this line was moved from above into here
+            appendNextMediaSegment(vidSourceBuffer, nextSegment);   //this line was moved from above into here
             if (!vidSourceBuffer.updating && mediaSource.readyState === "open") {
                 mediaSource.endOfStream();
                 getBufferLevel(vidSourceBuffer, videoElement);
@@ -103,7 +105,7 @@ function appendInitSegment(sourceBuffer, initializationSegment, initializationSe
 }
 
 // appends the next MEDIA segment if necessary
-function appendNextMediaSegment(sourceBuffer, index) {
+function appendNextMediaSegment(sourceBuffer, nextSegment) {
     // no-op if we are still processing an append operation
     // or if we have more than 4 seconds of data already buffered up
     if (!sourceBuffer || sourceBuffer.appendingData) {
@@ -116,7 +118,7 @@ function appendNextMediaSegment(sourceBuffer, index) {
     }
 
     sourceBuffer.appendingData = true;
-    sourceBuffer.appendBuffer(kfvSegments[0]);
+    sourceBuffer.appendBuffer(nextSegment);
     sourceBuffer.eos = true;
 }
 

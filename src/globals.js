@@ -27,3 +27,6 @@ var segments;                          //array holding time segments {start: m, 
 var hover;                             //<div> element containing videoElement and other UI elements
 var videoElement;                      //<video> element for displaying preview segment: either keyframe or video segment
 var status;                            //for testing only, when test_mode=true
+
+// Memory cache
+var memoryCache = {};

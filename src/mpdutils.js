@@ -72,7 +72,6 @@ function getMPD(url) {
                 }
             });
         }
-
     };
     dashManifestRequest.send();
 }  //getMPD

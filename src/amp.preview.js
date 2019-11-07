@@ -26,10 +26,10 @@ SOFTWARE.                       */
     amp.plugin("preview", function (options) {
 
         //retrieve input parameters
-        previewType = !!options && !!options.previewType ? options.previewType : "image";         //image or video
-        previewWidth = !!options && !!options.previewWidth ? options.previewWidth : 200;             //width of preview
+        previewType    = !!options && !!options.previewType    ? options.previewType    : "image";         //image or video
+        previewWidth   = !!options && !!options.previewWidth   ? options.previewWidth   : 200;             //width of preview
         previewQuality = !!options && !!options.previewQuality ? options.previewQuality : 0;               //bitrate/quality layer index of profile - 0 the lowest
-        test_mode = !!options && !!options.testMode ? options.testMode : false;           //test_mode toggle
+        test_mode      = !!options && !!options.testMode       ? options.testMode       : false;           //test_mode toggle
         previewLength = 1;                                                                                 //# of segments if previewType = "video", currently always 1
         //hovering div style depends on input
         hover_vertical_offset = parseInt(previewWidth) / 2 - 10;   //90 default;
@@ -151,12 +151,6 @@ SOFTWARE.                       */
                 displayStatus("<span style='color:red'>Starting keyframe download ......</span>");
                 console.log("Starting to download DASH segment from: " + kfvSegmentUrl);
             }
-
-            downloadSegment(segmentBaseUrl, bandwidth, time, "image").then(data => {
-                segmentToImage(initializationSegment, initializationSegmentUrl, completeMimeType, data).then(imageData => {
-                    console.log(imageData);
-                });
-            });
 
             BrowserUtils.xhrRequest(kfvSegmentUrl, "GET", "arraybuffer", "", "", function (data) {
                 if (!!data) {
