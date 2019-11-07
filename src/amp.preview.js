@@ -125,6 +125,7 @@ SOFTWARE.                       */
             return selectedSegments;
         }
 
+        var first = false;
         function mousemove(event) {
             //determine mousetime
             var pageX = event.pageX;
@@ -138,7 +139,6 @@ SOFTWARE.                       */
             left -= clientRect.left + pageXOffset;
             var mouseTime = (left - progressControl.el().offsetLeft) / progressControl.width() * duration;
 
-
             //get $Time$ in media
             var selectedSegments = getSelectedSegments(mouseTime * timescale);
             var time = selectedSegments[0].start;
@@ -151,6 +151,15 @@ SOFTWARE.                       */
             if (test_mode === true) {
                 displayStatus("<span style='color:red'>Starting keyframe download ......</span>");
                 console.log("Starting to download DASH segment from: " + kfvSegmentUrl);
+            }
+
+            if (!first) {
+                first = true;
+                downloadSegment(segmentBaseUrl, bandwidth, time, "image").then(data => {
+                    segmentToImage(initializationSegment, initializationSegmentUrl, completeMimeType, data).then(imageData => {
+                        console.log("222222222222222");
+                    });
+                });
             }
 
             BrowserUtils.xhrRequest(kfvSegmentUrl, "GET", "arraybuffer", "", "", function (data) {
