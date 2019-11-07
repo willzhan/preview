@@ -19,11 +19,11 @@ function setupPreview(index) {
         videoElement.addEventListener("ended", saveThumbnail, false);
         if (mediaSource.sourceBuffers.length === 0) {
             // Add video source buffers
-            vidSourceBuffer = createSourceBuffer(mediaSource, completeMimeType, index);
+            vidSourceBuffer = createSourceBuffer(mediaSource, completeMimeType, index, videoElement);
 
             // add segments
-            appendInitSegment(vidSourceBuffer);  //moved here from line 648
-            updateSourceBuffers(mediaSource, vidSourceBuffer, index);
+            appendInitSegment(vidSourceBuffer, initializationSegment, initializationSegmentUrl);  //moved here from line 648
+            updateSourceBuffers(mediaSource, vidSourceBuffer, index, videoElement);
         }
     }, false);
 
@@ -49,7 +49,7 @@ function setupPreview(index) {
 }
 
 // helper to add a source buffer and initialize some state
-function createSourceBuffer(mediaSource, mimeType, index) {
+function createSourceBuffer(mediaSource, mimeType, index, videoElement) {
 
     if (mediaSource.readyState !== "open") { return; }   //if mediaSource.readyState !== "open", mediaSource.addSourceBuffer will fail
 
@@ -66,14 +66,14 @@ function createSourceBuffer(mediaSource, mimeType, index) {
     // Register updateend event handler to know when the append or remove operation has completed
     sourceBuffer.addEventListener("updateend", function () {
         sourceBuffer.appendingData = false;
-        updateSourceBuffers(mediaSource, sourceBuffer, index);
+        updateSourceBuffers(mediaSource, sourceBuffer, index, videoElement);
     });
 
     return sourceBuffer;
 }
 
 // function called periodically to update the source buffers by appending more segments
-function updateSourceBuffers(mediaSource, vidSourceBuffer, index) {
+function updateSourceBuffers(mediaSource, vidSourceBuffer, index, videoElement) {
     //to avoid the error: Uncaught DOMException: Failed to execute 'endOfStream' on 'MediaSource': The 'updating' attribute is true on one or more of this MediaSource's SourceBuffers.
     //https://developer.mozilla.org/en-US/docs/Web/API/MediaSource/endOfStream
     if (!!vidSourceBuffer) {
@@ -81,14 +81,14 @@ function updateSourceBuffers(mediaSource, vidSourceBuffer, index) {
             appendNextMediaSegment(vidSourceBuffer, index);   //this line was moved from above into here
             if (!vidSourceBuffer.updating && mediaSource.readyState === "open") {
                 mediaSource.endOfStream();
-                getBufferLevel(vidSourceBuffer);
+                getBufferLevel(vidSourceBuffer, videoElement);
             }
         });
     }
 }
 
 // appends an INIT segment if necessary
-function appendInitSegment(sourceBuffer) {
+function appendInitSegment(sourceBuffer, initializationSegment, initializationSegmentUrl) {
     // no-op if already appended an INIT segment or
     // if we are still processing an append operation
     if (!sourceBuffer || !sourceBuffer.needsInitSegment || sourceBuffer.appendingData) {
@@ -121,7 +121,7 @@ function appendNextMediaSegment(sourceBuffer, index) {
 }
 
 // returns the amount of time buffered also set the video position to buffer start time
-function getBufferLevel(sourceBuffer) {
+function getBufferLevel(sourceBuffer, videoElement) {
     var frameStart; //moved to function scope
     var end;
     var bufferLevel = 0;

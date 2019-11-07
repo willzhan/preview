@@ -51,34 +51,21 @@ function segmentToImage(initializationSegment, initializationSegmentUrl, complet
 
         // Register sourceopen event handler in order to add source buffers to MSE after it has been attached to the video element.
         mediaSource.addEventListener("sourceopen", function () {
-            // Create video source buffer
-            sourceBuffer = createSourceBuffer(mediaSource, completeMimeType, 0);
+            if (mediaSource.sourceBuffers.length === 0) {
+                // Add video source buffers
+                sourceBuffer = createSourceBuffer(mediaSource, completeMimeType, 0, offscreenVideoElement);
 
-            // Append INIT segment
-            sourceBuffer.appendingData = true;
-            sourceBuffer.appendBuffer(initializationSegment);
-            sourceBuffer.needsInitSegment = false;
-            sourceBuffer.lastInitSegmentUrl = initializationSegmentUrl;
-
-            // Update source buffer
-            sourceBuffer.addEventListener("updateend", function () {
-                console.log("updateend");
-                sourceBuffer.appendBuffer(segmentData);
-                sourceBuffer.appendingData = false;
-                sourceBuffer.eos = true;
-                //if (!sourceBuffer.updating && mediaSource.readyState === "open") {
-                    mediaSource.endOfStream();
-                //}
-            });
+                // add segments
+                appendInitSegment(sourceBuffer, initializationSegment, initializationSegmentUrl);
+                updateSourceBuffers(mediaSource, sourceBuffer, 0, offscreenVideoElement);
+            }
         }, false);
 
         // Attach the MSE object to the video element
         offscreenVideoElement.src = URL.createObjectURL(mediaSource, { oneTimeOnly: true });
         offscreenVideoElement.play().then(_ => {
             canvasContext.drawImage(offscreenVideoElement, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-            const data = canvas.toDataURL();
-            console.log(data)
-            resolve(data)
+            resolve(canvas.toDataURL());
         }).catch(error => {
             reject(error);
         });
