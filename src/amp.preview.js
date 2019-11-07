@@ -25,18 +25,24 @@ SOFTWARE.                       */
 
     amp.plugin("preview", function (options) {
 
-        //retrieve input parameters
+        // retrieve input parameters
         previewType    = !!options && !!options.previewType    ? options.previewType    : "image";         //image or video
         previewWidth   = !!options && !!options.previewWidth   ? options.previewWidth   : 200;             //width of preview
         previewQuality = !!options && !!options.previewQuality ? options.previewQuality : 0;               //bitrate/quality layer index of profile - 0 the lowest
         test_mode      = !!options && !!options.testMode       ? options.testMode       : false;           //test_mode toggle
         previewLength = 1;                                                                                 //# of segments if previewType = "video", currently always 1
-        //hovering div style depends on input
+        // hovering div style depends on input
         hover_vertical_offset = parseInt(previewWidth) / 2 - 10;   //90 default;
 
-        //AMP variables
+        // AMP variables
         player = this;
         progressControl = player.controlBar.progressControl;
+
+        // Canvas
+        canvas = document.createElement("canvas");
+        canvasContext = canvas.getContext("2d");
+        canvas.width = CANVAS_WIDTH;
+        canvas.height = CANVAS_HEIGHT;
 
         //******************** ELEMENTS & POSITIONS  ************************//
         var getComputedStyle = function (el, pseudo) {
@@ -84,6 +90,11 @@ SOFTWARE.                       */
         videoElement.id = "thumbnailvideo";
         videoElement.style.width = previewWidth + "px";
         hover.appendChild(videoElement);
+
+        videoPreviewElement = document.createElement("img");
+        videoPreviewElement.style.width = previewWidth + "px";
+        videoPreviewElement.hidden = true;
+        hover.appendChild(videoPreviewElement);
 
         //status display (test mode)
         if (test_mode === true) {
@@ -153,26 +164,30 @@ SOFTWARE.                       */
                 console.log("Starting to download DASH segment from: " + kfvSegmentUrl);
             }
 
-            BrowserUtils.xhrRequest(kfvSegmentUrl, "GET", "arraybuffer", "", "", function (data) {
-                if (!!data) {
+            videoElement = document.getElementById("thumbnailvideo");
 
-                    videoElement = document.getElementById("thumbnailvideo");
-
-                    if (videoElement.currentTime === 0) {
-                        kfvSegments = [];
-                        kfvSegments.push(data);
-                        setupPreview(0);
+            // Check for in-memory cache
+            if (cacheThumbnails[kfvSegmentUrl]) {
+                console.log("Found in cache");
+                setupPreview(0);
+            } else {
+                BrowserUtils.xhrRequest(kfvSegmentUrl, "GET", "arraybuffer", "", "", function (data) {
+                    if (!!data) {
+                        if (videoElement.currentTime === 0) {
+                            kfvSegments = [];
+                            kfvSegments.push(data);
+                            setupPreview(0);
+                        }
+    
+                        if (test_mode === true) {
+                            displayStatus("Download complete. Segment size: " + data.byteLength + ".");
+                            console.log("DOWNLOAD COMPLETED: $Bandwidth$=" + bandwidth + " | $Time$=" + time + " | downloaded DASH keyframe size = " + data.byteLength);
+                            console.log("initializationSegment.byteLength: " + initializationSegment.byteLength);
+                            console.log("Attempt to display preview");
+                        }
                     }
-
-                    if (test_mode === true) {
-                        displayStatus("Download complete. Segment size: " + data.byteLength + ".");
-                        console.log("DOWNLOAD COMPLETED: $Bandwidth$=" + bandwidth + " | $Time$=" + time + " | downloaded DASH keyframe size = " + data.byteLength);
-                        console.log("initializationSegment.byteLength: " + initializationSegment.byteLength);
-                        console.log("Attempt to display preview");
-                    }
-                }
-            });
-
+                });
+            }
 
             //hover positioning
             hover.style.display = "block";
