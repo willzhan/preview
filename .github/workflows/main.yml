@@ -1,4 +1,4 @@
-name: CD (test)
+name: Node CD
 
 on: 
   push:
@@ -10,11 +10,36 @@ jobs:
     
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [12.x]
+
     steps:
-    - uses: actions/checkout@v1
-    - name: Run a one-line script
-      run: echo Hello, world!
-    - name: Run a multi-line script
+    - name: Checkout repository
+      uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm install, build, and test
       run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
+        npm ci
+        npm run build --if-present
+        npm run test --if-present
+    - name: Archive develop artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: static-distro-develop
+        path: src/static        
+      env:
+        CD: true
+    - name: Azure Static Website Deploy
+      uses: feeloor/azure-static-website-deploy@v0.1.0
+      env:
+          SOURCE_DIR: "src/static"
+          AZURE_CLIENT_ID: ${{ secrets.TEST1_AZCLIENTID }}
+          AZURE_TENANT_ID: ${{ secrets.TEST1_AZTENANTID }}
+          AZURE_SECRET: ${{ secrets.TEST1_AZSECRET }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST1_AZSUBID }}
+          AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.TEST1_AZSTORAGE }}
+          AZURE_INDEX_DOCUMENT_NAME: "Preview.html"
