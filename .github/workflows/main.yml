@@ -33,3 +33,15 @@ jobs:
         path: src/static        
       env:
         CD: true
+    - name: Azure Static Website Deploy
+      uses: feeloor/azure-static-website-deploy@v0.1.0
+      env:
+          SOURCE_DIR: "src/static"
+          AZURE_CLIENT_ID: ${{ secrets.TEST1_AZCLIENTID }}
+          AZURE_TENANT_ID: ${{ secrets.TEST1_AZTENANTID }}
+          AZURE_SECRET: ${{ secrets.TEST1_AZSECRET }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST1_AZSUBID }}
+          AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.TEST1_AZSTORAGE }}
+          AZURE_INDEX_DOCUMENT_NAME: "Preview.html"
+          #AZURE_ERROR_DOCUMENT_NAME: "<error-document-name>"    
+      
