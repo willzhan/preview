@@ -61,19 +61,14 @@ AmpPlayer.prototype.play = function () {
         type: "application/vnd.ms-sstr+xml"
     }]);
 
-    // videoElement.addEventListener("playing", () => {
-    //     console.log("videoElement.addEventListener");
-    //     // Prefetch thumbnails
-    //     prefetchThumbnails(segmentBaseUrl, bandwidth, segments, initializationSegment,
-    //         initializationSegmentUrl, completeMimeType, memoryCache);
-    // });
-
-    // TODO
-    setTimeout(() => {
-        // Prefetch thumbnails
-        prefetchThumbnails(segmentBaseUrl, bandwidth, segments, initializationSegment,
-            initializationSegmentUrl, completeMimeType, memoryCache);
-    }, 3000);
+    // Prefetch thumbnails on click
+    amPlayer.addEventListener("click", () => {
+        if (!prefetched) {
+            prefetched = true;
+            prefetchThumbnails(segmentBaseUrl, bandwidth, segments, initializationSegment,
+                initializationSegmentUrl, completeMimeType, memoryCache);
+        }
+    });
 }
 
 AmpPlayer.prototype.getPlugins = function () {

@@ -73,8 +73,9 @@ function segmentToImage(initializationSegment, initializationSegmentUrl, complet
 }
 
 function prefetchThumbnails(baseUrl, bandwidth, segments, initializationSegment, initializationSegmentUrl, completeMimeType, memoryCache) {
-    console.log("prefetchThumbnails");
+    const fetchInterval = 100;
 
+    console.log("Number of segments: " + segments.length);
     for (var i = 0; i < segments.length; i++) {
         const time = segments[i].start;
         setTimeout(() => {
@@ -83,10 +84,10 @@ function prefetchThumbnails(baseUrl, bandwidth, segments, initializationSegment,
                     const segmentVirtualUrl = media.replace("$Bandwidth$", bandwidth).replace("$Time$", time);
                     let url = segmentBaseUrl + segmentVirtualUrl;
                     url = url.replace("/Fragments(", "/Keyframes(");
-                    console.log(imageData);
                     memoryCache[url] = imageData;
+                    console.log(Object.keys(memoryCache).length);
                 });
             });
-        }, i * 500);
+        }, i * fetchInterval);
     }
 }

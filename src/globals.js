@@ -30,3 +30,4 @@ var status;                            //for testing only, when test_mode=true
 
 // Memory cache
 var memoryCache = {};
+var prefetched = false;
