@@ -6,6 +6,11 @@ let outdir = dir + 'static/js/';
 let bundlefile = outdir + 'bundle.min.js';
 let omit = ['ampPlayer.js'];
 
+// make outdir if it doesn't exist for CI
+if (!fs.existsSync(outdir)){
+  fs.mkdirSync(outdir, { recursive: true });
+}
+
 /**
  * Minify source
  */
