@@ -17,5 +17,7 @@
     "url": "https://github.com/willzhan/preview/issues"
   },
   "homepage": "https://github.com/willzhan/preview#readme",
-  "devDependencies": {}
+  "devDependencies": {
+    "uglify-js": "^3.6.8"
+  }
 }
