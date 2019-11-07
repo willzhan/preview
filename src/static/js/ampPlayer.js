@@ -105,4 +105,3 @@ AmpPlayer.prototype.getPlugins = function () {
 
     return plugins;
 }
-

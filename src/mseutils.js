@@ -8,43 +8,54 @@
  */
 
 function setupPreview(index) {
+    if (memoryCache[kfvSegmentUrl]) {
+        console.log("Found in cache: " + kfvSegmentUrl);
 
-    // Create MSE object (the following 2 variables were moved into function scope from global)
-    var vidSourceBuffer;
-    var mediaSource = new MediaSource();
-
-    // Register sourceopen event handler in order to add source buffers to MSE after it has been attached to the video element.
-    mediaSource.addEventListener("sourceopen", function () {
-        // Register timeupdate event handler to monitor buffer level
-        videoElement.addEventListener("ended", saveThumbnail, false);
-        if (mediaSource.sourceBuffers.length === 0) {
-            // Add video source buffers
-            vidSourceBuffer = createSourceBuffer(mediaSource, completeMimeType, index, videoElement);
-
-            // add segments
-            appendInitSegment(vidSourceBuffer, initializationSegment, initializationSegmentUrl);  //moved here from line 648
-            updateSourceBuffers(mediaSource, vidSourceBuffer, kfvSegments[0], videoElement);
-        }
-    }, false);
-
-    // Attach the MSE object to the video element
-    videoElement.src = URL.createObjectURL(mediaSource, { oneTimeOnly: true });
-    if (previewType === "video") {
-        var playPromise = videoElement.play();
-        if (playPromise !== undefined) {
-            playPromise.then(_ => {
-                // Automatic playback started!
-                // Show playing UI.
-                // We can now safely pause video...
-                //video.pause();
-            })
-                .catch(error => {
-                    // Auto-play was prevented
-                    console.log("Promise for video.play() is rejected.");
-                });
-        }
+        // Already cache
+        videoElement.hidden = true;
+        previewElement.src = memoryCache[kfvSegmentUrl];
+        previewElement.hidden = false;
     } else {
-        videoElement.load();  //https://developers.google.com/web/updates/2017/06/play-request-was-interrupted
+        videoElement.hidden = false;
+        previewElement.hidden = true;
+
+        // Create MSE object (the following 2 variables were moved into function scope from global)
+        var vidSourceBuffer;
+        var mediaSource = new MediaSource();
+
+        // Register sourceopen event handler in order to add source buffers to MSE after it has been attached to the video element.
+        mediaSource.addEventListener("sourceopen", function () {
+            // Register timeupdate event handler to monitor buffer level
+            videoElement.addEventListener("ended", saveThumbnail, false);
+            if (mediaSource.sourceBuffers.length === 0) {
+                // Add video source buffers
+                vidSourceBuffer = createSourceBuffer(mediaSource, completeMimeType, index, videoElement);
+
+                // add segments
+                appendInitSegment(vidSourceBuffer, initializationSegment, initializationSegmentUrl);  //moved here from line 648
+                updateSourceBuffers(mediaSource, vidSourceBuffer, kfvSegments[0], videoElement);
+            }
+        }, false);
+
+        // Attach the MSE object to the video element
+        videoElement.src = URL.createObjectURL(mediaSource, { oneTimeOnly: true });
+        if (previewType === "video") {
+            var playPromise = videoElement.play();
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    // Automatic playback started!
+                    // Show playing UI.
+                    // We can now safely pause video...
+                    //video.pause();
+                })
+                    .catch(error => {
+                        // Auto-play was prevented
+                        console.log("Promise for video.play() is rejected.");
+                    });
+            }
+        } else {
+            videoElement.load();  //https://developers.google.com/web/updates/2017/06/play-request-was-interrupted
+        }
     }
 }
 
