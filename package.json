@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test-disabled-till-we-add-tests": "echo \"Error: no test specified\" && exit 1",
-    "build": "find ./src -maxdepth 1 -iname '*.js' -not -name 'ampPlayer.js' -exec cat {} +> src/static/js/bundle.js && cp src/ampPlayer.js src/static/js/"
+    "build": "node build/bundle-minify.js"
   },
   "repository": {
     "type": "git",
@@ -17,5 +17,7 @@
     "url": "https://github.com/willzhan/preview/issues"
   },
   "homepage": "https://github.com/willzhan/preview#readme",
-  "devDependencies": {}
+  "devDependencies": {
+    "uglify-js": "^3.6.8"
+  }
 }
