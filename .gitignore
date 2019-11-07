@@ -103,5 +103,5 @@ dist
 # TernJS port file
 .tern-port
 
-# Bundle file
-src/static/js/bundle.js
+# Bundled files
+src/static/js/*.min.js
