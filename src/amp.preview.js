@@ -85,6 +85,12 @@ SOFTWARE.                       */
         videoElement.style.width = previewWidth + "px";
         hover.appendChild(videoElement);
 
+        // Create previewElement for thumbnails stored in memory cache
+        previewElement = document.createElement("img");
+        previewElement.style.width = previewWidth + "px";
+        previewElement.hidden = true;
+        hover.appendChild(previewElement);
+
         //status display (test mode)
         if (test_mode === true) {
             status = document.createElement("div");
@@ -137,7 +143,6 @@ SOFTWARE.                       */
             // subtract the page offset of the positioned offset parent
             left -= clientRect.left + pageXOffset;
             var mouseTime = (left - progressControl.el().offsetLeft) / progressControl.width() * duration;
-
 
             //get $Time$ in media
             var selectedSegments = getSelectedSegments(mouseTime * timescale);

@@ -8,48 +8,53 @@
  */
 
 function setupPreview(index) {
+    if (memoryCache[kfvSegmentUrl]) {
+        console.log("Found in cache: " + kfvSegmentUrl);
 
-    // Create MSE object (the following 2 variables were moved into function scope from global)
-    var vidSourceBuffer;
-    var mediaSource = new MediaSource();
+        // Already cache
+        videoElement.hidden = true;
+        previewElement.src = memoryCache[kfvSegmentUrl];
+        previewElement.hidden = false;
+    } else {
+        videoElement.hidden = false;
+        previewElement.hidden = true;
 
-    // Register sourceopen event handler in order to add source buffers to MSE after it has been attached to the video element.
-    mediaSource.addEventListener("sourceopen", function () {
-        // Register timeupdate event handler to monitor buffer level
-        videoElement.addEventListener("ended", saveThumbnail, false);
-        if (mediaSource.sourceBuffers.length === 0) {
-            // Add video source buffers
-            vidSourceBuffer = createSourceBuffer(mediaSource, completeMimeType, index);
+        // Create MSE object (the following 2 variables were moved into function scope from global)
+        var vidSourceBuffer;
+        var mediaSource = new MediaSource();
 
-            // add segments
-            appendInitSegment(vidSourceBuffer);  //moved here from line 648
-            updateSourceBuffers(mediaSource, vidSourceBuffer, index);
-        }
-    }, false);
+        // Register sourceopen event handler in order to add source buffers to MSE after it has been attached to the video element.
+        mediaSource.addEventListener("sourceopen", function () {
+            // Register timeupdate event handler to monitor buffer level
+            videoElement.addEventListener("ended", saveThumbnail, false);
+            if (mediaSource.sourceBuffers.length === 0) {
+                // Add video source buffers
+                vidSourceBuffer = createSourceBuffer(mediaSource, completeMimeType, index, videoElement);
 
-    // Attach the MSE object to the video element
-    videoElement.src = URL.createObjectURL(mediaSource, { oneTimeOnly: true });
-    if (previewType === "video") {
-        var playPromise = videoElement.play();
-        if (playPromise !== undefined) {
-            playPromise.then(function(_) {
-                // Automatic playback started!
-                // Show playing UI.
-                // We can now safely pause video...
-                //video.pause();
-            })
-                .catch(function(error) {
+                // add segments
+                appendInitSegment(vidSourceBuffer, initializationSegment, initializationSegmentUrl);  //moved here from line 648
+                updateSourceBuffers(mediaSource, vidSourceBuffer, kfvSegments[0], videoElement);
+            }
+        }, false);
+
+        // Attach the MSE object to the video element
+        videoElement.src = URL.createObjectURL(mediaSource, { oneTimeOnly: true });
+        if (previewType === "video") {
+            var playPromise = videoElement.play();
+            if (playPromise !== undefined) {
+                playPromise.then.catch(function (_) {
                     // Auto-play was prevented
                     console.log("Promise for video.play() is rejected.");
                 });
+            }
+        } else {
+            videoElement.load();  //https://developers.google.com/web/updates/2017/06/play-request-was-interrupted
         }
-    } else {
-        videoElement.load();  //https://developers.google.com/web/updates/2017/06/play-request-was-interrupted
     }
 }
 
 // helper to add a source buffer and initialize some state
-function createSourceBuffer(mediaSource, mimeType, index) {
+function createSourceBuffer(mediaSource, mimeType, index, videoElement) {
 
     if (mediaSource.readyState !== "open") { return; }   //if mediaSource.readyState !== "open", mediaSource.addSourceBuffer will fail
 
@@ -66,29 +71,31 @@ function createSourceBuffer(mediaSource, mimeType, index) {
     // Register updateend event handler to know when the append or remove operation has completed
     sourceBuffer.addEventListener("updateend", function () {
         sourceBuffer.appendingData = false;
-        updateSourceBuffers(mediaSource, sourceBuffer, index);
+        if (kfvSegments) {
+            updateSourceBuffers(mediaSource, sourceBuffer, kfvSegments[0], videoElement);
+        }
     });
 
     return sourceBuffer;
 }
 
 // function called periodically to update the source buffers by appending more segments
-function updateSourceBuffers(mediaSource, vidSourceBuffer, index) {
+function updateSourceBuffers(mediaSource, vidSourceBuffer, nextSegment, videoElement) {
     //to avoid the error: Uncaught DOMException: Failed to execute 'endOfStream' on 'MediaSource': The 'updating' attribute is true on one or more of this MediaSource's SourceBuffers.
     //https://developer.mozilla.org/en-US/docs/Web/API/MediaSource/endOfStream
     if (!!vidSourceBuffer) {
         vidSourceBuffer.addEventListener("updateend", function () {
-            appendNextMediaSegment(vidSourceBuffer, index);   //this line was moved from above into here
+            appendNextMediaSegment(vidSourceBuffer, nextSegment);   //this line was moved from above into here
             if (!vidSourceBuffer.updating && mediaSource.readyState === "open") {
                 mediaSource.endOfStream();
-                getBufferLevel(vidSourceBuffer);
+                getBufferLevel(vidSourceBuffer, videoElement);
             }
         });
     }
 }
 
 // appends an INIT segment if necessary
-function appendInitSegment(sourceBuffer) {
+function appendInitSegment(sourceBuffer, initializationSegment, initializationSegmentUrl) {
     // no-op if already appended an INIT segment or
     // if we are still processing an append operation
     if (!sourceBuffer || !sourceBuffer.needsInitSegment || sourceBuffer.appendingData) {
@@ -103,7 +110,7 @@ function appendInitSegment(sourceBuffer) {
 }
 
 // appends the next MEDIA segment if necessary
-function appendNextMediaSegment(sourceBuffer, index) {
+function appendNextMediaSegment(sourceBuffer, nextSegment) {
     // no-op if we are still processing an append operation
     // or if we have more than 4 seconds of data already buffered up
     if (!sourceBuffer || sourceBuffer.appendingData) {
@@ -116,12 +123,12 @@ function appendNextMediaSegment(sourceBuffer, index) {
     }
 
     sourceBuffer.appendingData = true;
-    sourceBuffer.appendBuffer(kfvSegments[0]);
+    sourceBuffer.appendBuffer(nextSegment);
     sourceBuffer.eos = true;
 }
 
 // returns the amount of time buffered also set the video position to buffer start time
-function getBufferLevel(sourceBuffer) {
+function getBufferLevel(sourceBuffer, videoElement) {
     var frameStart; //moved to function scope
     var end;
     var bufferLevel = 0;
