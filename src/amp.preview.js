@@ -152,31 +152,36 @@ SOFTWARE.                       */
             if (previewType !== "video") {
                 kfvSegmentUrl = kfvSegmentUrl.replace("/Fragments(", "/Keyframes(");
             }
-
+            if (currentSegmentUrl == undefined ||
+                currentSegmentUrl !== kfvSegmentUrl) {
+                    currentSegmentUrl = kfvSegmentUrl;
+                    kfvSegments = [];
+            }
             if (test_mode === true) {
                 displayStatus("<span style='color:red'>Starting keyframe download ......</span>");
                 console.log("Starting to download DASH segment from: " + kfvSegmentUrl);
             }
+            // avoid to request the same url from previous event.
+            if (kfvSegments.length === 0) {
+                BrowserUtils.xhrRequest(kfvSegmentUrl, "GET", "arraybuffer", "", "", function (data) {
+                    if (!!data) {
 
-            BrowserUtils.xhrRequest(kfvSegmentUrl, "GET", "arraybuffer", "", "", function (data) {
-                if (!!data) {
+                        videoElement = document.getElementById("thumbnailvideo");
 
-                    videoElement = document.getElementById("thumbnailvideo");
+                        if (videoElement.currentTime === 0) {
+                            kfvSegments.push(data);
+                            setupPreview(0);
+                        }
 
-                    if (videoElement.currentTime === 0) {
-                        kfvSegments = [];
-                        kfvSegments.push(data);
-                        setupPreview(0);
+                        if (test_mode === true) {
+                            displayStatus("Download complete. Segment size: " + data.byteLength + ".");
+                            console.log("DOWNLOAD COMPLETED: $Bandwidth$=" + bandwidth + " | $Time$=" + time + " | downloaded DASH keyframe size = " + data.byteLength);
+                            console.log("initializationSegment.byteLength: " + initializationSegment.byteLength);
+                            console.log("Attempt to display preview");
+                        }
                     }
-
-                    if (test_mode === true) {
-                        displayStatus("Download complete. Segment size: " + data.byteLength + ".");
-                        console.log("DOWNLOAD COMPLETED: $Bandwidth$=" + bandwidth + " | $Time$=" + time + " | downloaded DASH keyframe size = " + data.byteLength);
-                        console.log("initializationSegment.byteLength: " + initializationSegment.byteLength);
-                        console.log("Attempt to display preview");
-                    }
-                }
-            });
+                });
+            }
 
 
             //hover positioning
