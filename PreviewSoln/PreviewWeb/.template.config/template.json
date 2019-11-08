@@ -1,0 +1,8 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Team 49",
+    "classifications": [ "Web" ],
+    "identity": "Video.Preview.Templates",
+    "name": "Video Preview Web Application",
+    "shortName": "myvideopreview"
+  }
