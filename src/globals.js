@@ -21,6 +21,7 @@ var initializationSegment;             //initialization segment
 var initializationSegmentUrl;          //initialization segment URL
 var kfvSegments;                        //keyframe or video segment
 var kfvSegmentUrl;                     //keyframe or video segment URL
+var currentSegmentUrl;                 // Current segment url
 var segments;                          //array holding time segments {start: m, end: n}, in timescale
 
 //video preview
