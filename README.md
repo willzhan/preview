@@ -13,8 +13,8 @@ Can we skip the above steps and solely rely on client javascript code to dynamic
 
 All modern browsers support MSE and EME: Edge, Chrome, Safari, Firefox, Opera. If we can make this approach work, it would work for all modern browsers.
 
-Since we can choose to either download the corresponding keyframe or DASH/HLS segment, we have the choice to either just show a static thumbnail image (decoded from keyfrome) or a short video clip (decoded from the downloaded segment). 
+Since we can choose to either download the corresponding keyframe or DASH/HLS segment, we have the choice to either just show a static thumbnail image (decoded from keyframe) or a short video clip (decoded from the downloaded segment). 
 
-Please see the demo https://openidconnectweb.azurewebsites.net/Plugin/Preview.html.
+Please see the [demo](https://openidconnectweb.azurewebsites.net/Plugin/Preview.html).
 
 
