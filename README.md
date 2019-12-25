@@ -1,5 +1,20 @@
 # Video Scrubbing Preview Without Image Generation
-MSE-based video frame preview whilst scrubbing without generating keyframe images in advance.
+MSE-based video preview whilst scrubbing without generating images in advance.
 
 ## Rationale
-To create UI that supports seeing frame previews while moving the playhead (scrubbing). Traditional on-demand video image preview requires the creation of thumbnail images generated from the source video at regular intervals. That image generation has both compute and permanent storage costs that compound as video content libraries grow larger and larger. This approach uses the Media Source Extensions API in all modern browsers (Edge, Firefox, Chrome, Safari) to dynamically request video segments and display them as images or video clips from standard MPEG-DASH and HLS segmented MP4 video content.
+For most online streaming products such as Netflix, Amazon Prime, YouTube, etc., thumbnail preview while mouseover timeline is a popular feature. Traditionally, such feature requires the following 5 steps:
+ - Server side transcoding job to generate thumbnail images;
+ - Store images
+ - Host images thru an HTTP endpoint
+ - Manage image URLs thru CMS
+ - Client code to download and display images
+
+Can we skip the above steps and solely rely on client javascript code to dynamically generate thumbnail images and display? If MSE can decode and play a DASH or HLS segment, why cannot we use MSE to decode and display a keyframe of a DASH or HLS segment? Even if for DRM or clear key protected content, if EME can decrypt a DASH or HLS segment, why cannot it decrypt a DASH or HLS keyframe? 
+
+All modern browsers support MSE and EME: Edge, Chrome, Safari, Firefox, Opera. If we can make this approach work, it would work for all modern browsers.
+
+Since we can choose to either download the corresponding keyframe or DASH/HLS segment, we have the choice to either just show a static thumbnail image (decoded from keyfrome) or a short video clip (decoded from the downloaded segment). 
+
+Please see the demo https://openidconnectweb.azurewebsites.net/Plugin/Preview.html.
+
+
